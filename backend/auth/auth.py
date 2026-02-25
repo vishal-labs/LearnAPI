@@ -1,15 +1,16 @@
 # This file is for user signup and signin
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from backend.database.database import getDB
 from sqlalchemy.orm import Session
 from backend.models import loginUser, onBoardUser
 from backend.database.schema import UsertableSchema
 from backend.validate import validateUserSession, createToken
-app = FastAPI()
+
+router = APIRouter()
 security = HTTPBearer()
 
-@app.post('/auth/login')
+@router.post('/auth/login')
 async def loginUser(user: loginUser,db: Session = Depends(getDB)):
 # Aim of this function is to verify if the user already exists, and if yes, return a bearer token meaning, logging him in
     # Verify if the user exists
@@ -28,7 +29,7 @@ async def loginUser(user: loginUser,db: Session = Depends(getDB)):
     else:
         raise HTTPException(status_code=404, detail="invalid login credentials")
 
-@app.post("/auth/signup")
+@router.post("/auth/signup")
 async def OnBoardUser(
     user: onBoardUser, 
     db: Session = Depends(getDB)
@@ -44,14 +45,8 @@ async def OnBoardUser(
         db.refresh(newUser)
         return {"msg" : "User created"}
 
-@app.get("/auth/me")
+@router.get("/auth/me")
 async def me(creds: HTTPAuthorizationCredentials = Depends(security)):
     token = creds.credentials
     validateUserSession(token)
     return {"msg" : "User is valid"}
-
-
-@app.get("/")
-async def home():
-    return {"msg" : "Welcome to the JWT Authentication API"}
-
