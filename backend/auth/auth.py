@@ -10,6 +10,8 @@ from backend.validate import validateUserSession, createToken
 router = APIRouter()
 security = HTTPBearer()
 
+
+
 @router.post('/auth/login')
 async def loginUser(user: loginUser,db: Session = Depends(getDB)):
 # Aim of this function is to verify if the user already exists, and if yes, return a bearer token meaning, logging him in

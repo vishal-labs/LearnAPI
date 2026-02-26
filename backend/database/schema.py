@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy as db
-
+from sqlalchemy import text
 
 Base = declarative_base()
 
@@ -10,5 +10,4 @@ class UsertableSchema(Base):
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(40), nullable=False, unique=True)
     password = db.Column(db.String(30), nullable=False, unique=False)
-
-
+    isAdmin = db.Column(db.Boolean, nullable=False,server_default=text('false'))

@@ -15,7 +15,7 @@ POSTGRES_PORT = os.getenv("POSTGRES_PORT")
 POSTGRES_DB = os.getenv("POSTGRES_DB", "testdb")
 
 DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
-print(DATABASE_URL)
+#print(DATABASE_URL)
 
 # Create a helper function for DB connection
 

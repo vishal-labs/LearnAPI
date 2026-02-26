@@ -28,5 +28,9 @@
     With this, i can get the bearer token, validate the lifespan of it, and if the token is expired, do not proceed further.
 11. As a general Practice, use OAuth2_scheme to check if the token is actually being generated from the endpoint that we intended from.
 12. Only use endpoints by starting them with `/`
-13. While using the SQLALchemy ORM for db queries, all of the queries return the Object not the value that we are expecting
-    directly, so check how to extract the message directly.
+13. While using the SQLALchemy ORM for db queries, all of the queries return the Object not the value that we are expecting directly, so check how to extract the message directly.
+
+14. Using Alembic to create a database migration/modification is a little tricky, the basic ORM code that we right
+   might sometimes break the alembic migration process Ex. `default vs server_default` (i might only know this)
+15. When calling a helper function inside a main function, if the helper function requires something as a parameter,
+   and the main function can provide that, than pass that parameter directly to the helper function, instead of using Depends. Should learn more about this. 
