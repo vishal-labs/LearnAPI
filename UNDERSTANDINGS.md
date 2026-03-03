@@ -31,6 +31,7 @@
 13. While using the SQLALchemy ORM for db queries, all of the queries return the Object not the value that we are expecting directly, so check how to extract the message directly.
 
 14. Using Alembic to create a database migration/modification is a little tricky, the basic ORM code that we right
-   might sometimes break the alembic migration process Ex. `default vs server_default` (i might only know this)
+    might sometimes break the alembic migration process Ex. `default vs server_default` (i might only know this)
 15. When calling a helper function inside a main function, if the helper function requires something as a parameter,
-   and the main function can provide that, than pass that parameter directly to the helper function, instead of using Depends. Should learn more about this. 
+    and the main function can provide that, than pass that parameter directly to the helper function, instead of using Depends. Should learn more about this.
+16. Use typing, Optional for pydantic models where the input fields can be optionally null in some cases.

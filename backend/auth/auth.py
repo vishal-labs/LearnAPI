@@ -4,7 +4,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from backend.database.database import getDB
 from sqlalchemy.orm import Session
 from backend.models import loginUser, onBoardUser
-from backend.database.schema import UsertableSchema
+from backend.database.schema import UserAccountBalanceSchema, UsertableSchema, PaymentHistorySchema
 from backend.validate import validateUserSession, createToken
 
 from passlib.context import CryptContext
@@ -35,7 +35,7 @@ async def loginUser(user: loginUser,db: Session = Depends(getDB)):
         }
         return payload
     else:
-        raise HTTPException(status_code=404, detail="invalid login credentials")
+        raise HTTPException(status_code=401, detail="invalid login credentials")
 
 @router.post("/auth/signup")
 async def OnBoardUser(
@@ -50,10 +50,13 @@ async def OnBoardUser(
         #hashed_password = pwd_context.hash(user.password)
         hashed_password = user.password
         newUser = UsertableSchema(email = user.email, password = hashed_password, username = user.username)
+        
         db.add(newUser)
+        db.flush()
+        newUserforAccount = UserAccountBalanceSchema(userid = newUser.id)
+        db.add(newUserforAccount)
         db.commit()
-        db.refresh(newUser)
-        return {"msg" : "User created"}
+        return {"msg" : "Account created"}
 
 @router.get("/auth/me")
 async def me(creds: HTTPAuthorizationCredentials = Depends(security)):

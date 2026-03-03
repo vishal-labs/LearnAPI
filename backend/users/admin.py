@@ -24,7 +24,7 @@ async def getAllUsers(db: Session = Depends(getDB), creds : HTTPAuthorizationCre
         users = db.query(UsertableSchema).all()
         return users
     else:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=403, detail="Unauthorized")
 @router.post("/make/admin")
 async def updateAdminStatus(
     user: makeUserAdmin, 
@@ -37,9 +37,9 @@ async def updateAdminStatus(
             db.commit()
             db.refresh(user_record)
         else:
-            raise HTTPException(status_code=401, detail="User doesn't exist")
+            raise HTTPException(status_code=404, detail="User doesn't exist")
     elif user.adminKey != adminKey:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid admin key")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid admin key")
     return {"message": "User promoted to admin", "email": user_record.email}
             
 

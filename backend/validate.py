@@ -26,9 +26,9 @@ def validateUserSession(token: str):
     try:
         jwt.decode(token, key=key, algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=403, detail="Session Expired, Login Again")
+        raise HTTPException(status_code=401, detail="Session Expired, Login Again")
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=403, detail="Invalid User authentication")   
+        raise HTTPException(status_code=401, detail="Invalid User authentication")   
 
         
 def validateAdminStatus(token: str, db: Session):
