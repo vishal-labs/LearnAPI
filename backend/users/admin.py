@@ -1,9 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from backend.database.schema import UsertableSchema
 from backend.database.database import getDB
 from backend.validate import validateAdminStatus
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+import os
+from dotenv import load_dotenv
+from backend.models import makeUserAdmin
+from backend.database.schema import UsertableSchema
+
+load_dotenv()
+adminKey = os.getenv("ADMINKEY")
+
 
 security = HTTPBearer()
 
@@ -16,3 +25,24 @@ async def getAllUsers(db: Session = Depends(getDB), creds : HTTPAuthorizationCre
         return users
     else:
         raise HTTPException(status_code=401, detail="Unauthorized")
+@router.post("/make/admin")
+async def updateAdminStatus(
+    user: makeUserAdmin, 
+    db: Session = Depends(getDB)
+):
+    if user.adminKey == adminKey:
+        user_record = db.query(UsertableSchema).filter(UsertableSchema.email == user.email).first()
+        if user_record.email != None:
+            user_record.isAdmin = True
+            db.commit()
+            db.refresh(user_record)
+        else:
+            raise HTTPException(status_code=401, detail="User doesn't exist")
+    elif user.adminKey != adminKey:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid admin key")
+    return {"message": "User promoted to admin", "email": user_record.email}
+            
+
+
+
+

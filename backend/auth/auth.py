@@ -7,6 +7,12 @@ from backend.models import loginUser, onBoardUser
 from backend.database.schema import UsertableSchema
 from backend.validate import validateUserSession, createToken
 
+from passlib.context import CryptContext
+
+pwd_context  = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+
 router = APIRouter()
 security = HTTPBearer()
 
@@ -41,7 +47,9 @@ async def OnBoardUser(
     if checkEmail != None:
         raise HTTPException(status_code=409, detail="User already exists")
     else:
-        newUser = UsertableSchema(email = user.email, password = user.password, username = user.username)
+        #hashed_password = pwd_context.hash(user.password)
+        hashed_password = user.password
+        newUser = UsertableSchema(email = user.email, password = hashed_password, username = user.username)
         db.add(newUser)
         db.commit()
         db.refresh(newUser)
