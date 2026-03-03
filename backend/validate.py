@@ -4,6 +4,7 @@ import datetime
 from datetime import timezone, timedelta
 from dotenv import load_dotenv
 from fastapi import HTTPException, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from backend.database.database import getDB
 from sqlalchemy.orm import Session
 from backend.database.schema import UsertableSchema
@@ -29,6 +30,12 @@ def validateUserSession(token: str):
         raise HTTPException(status_code=401, detail="Session Expired, Login Again")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid User authentication")   
+
+security = HTTPBearer()
+
+def RequireAuth(creds: HTTPAuthorizationCredentials = Depends(security)):
+    validateUserSession(creds.credentials)
+    return creds.credentials
 
         
 def validateAdminStatus(token: str, db: Session):

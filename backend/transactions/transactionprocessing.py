@@ -4,8 +4,10 @@ from backend.database.database import getDB
 from sqlalchemy.orm import Session
 from backend.models import * 
 from backend.database.schema import * 
+from backend.validate import RequireAuth
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(RequireAuth)])
+#router = APIRouter()
 
 @router.post("/user/balance")
 async def get_user_balance(
