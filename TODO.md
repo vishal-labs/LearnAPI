@@ -1,21 +1,51 @@
-1. Create more tables to learn more ORM queries and relationship management
-2. Get more comfortable with using Pydantic and SQLModels for API parameters and DB queries/construction.
-3. Implement Forgot password feature
-4. Create an admin route to return all of the users in the database.(should create auth for admin, for that should change the usertableschema)
+# TODO
 
-5.
+## Foundational (Original Goals)
 
-## Incremental Learning Tasks (Added!)
+- [ ] Create more tables to learn ORM queries and relationship management
+- [ ] Get more comfortable with Pydantic and SQLModels for API parameters and DB queries
+- [ ] Implement a Forgot Password feature
+- [ ] ~~Create an admin route to return all users~~ ✅ Done (`GET /admin/users`)
 
-### Security & Authentication
+---
 
-5. **Hash Passwords (CRITICAL)**: Replace storing plain-text passwords in the DB by hashing them before saving (look into `passlib` and `bcrypt`). Write a utility function to verify hashes during login.
-6. **Refresh Tokens**: Your token expires in 1 minute. Implement a `/refresh` endpoint that takes a longer-lived "Refresh Token" to generate a new short-lived "Access Token", so the user doesn't have to keep typing their password.
+## Security & Authentication
 
-### Database & Architecture
+- [ ] **Hash passwords** — `passlib` + `bcrypt` are already imported but signup still saves plain-text. Actually hash before storing and verify during login.
+- [ ] **Extract user identity from JWT** — Endpoints like `/user/balance` trust the email in the request body. Instead, decode the JWT to get the logged-in user's email — prevents users from accessing other accounts.
+- [ ] **Implement refresh tokens** — Token expires in 4 minutes. Add a `/auth/refresh` endpoint that uses a longer-lived refresh token to issue new short-lived access tokens.
 
-9. **Global Exception Handling**: Instead of individually catching exceptions and raising `HTTPException(403)` everywhere, learn how to write a global FastAPI `@app.exception_handler()` to catch errors (like `jwt.ExpiredSignatureError`) application-wide and return formatted JSON error responses.
+---
 
-### Web Application Necessities
+## Error Handling & Correctness
 
-11. **Environment Variables via Pydantic (`BaseSettings`)**: You are currently using `os.getenv()`. Pydantic has a `BaseSettings` feature that automatically loads `.env` files, validates the types (e.g., ensuring port numbers are `int`), and provides them as a singleton object. It is much cleaner!
+- [ ] **Fix `return HTTPException` → `raise HTTPException`** — Several error paths in `accountholder.py` return the exception instead of raising it, sending a `200 OK` with a serialized error object.
+- [ ] **Add balance check to withdrawal** — `/user/withdrawal` subtracts without verifying sufficient funds. Match the guard already in `/user/transfer`.
+- [ ] **Validate transaction amounts** — Add `Field(gt=0)` on `transactionAmount` in Pydantic models to reject negative/zero values.
+- [ ] **Global exception handling** — Write a FastAPI `@app.exception_handler()` to catch common errors (e.g., `jwt.ExpiredSignatureError`) app-wide instead of per-endpoint try/except blocks.
+
+---
+
+## Database & Architecture
+
+- [ ] **Clean up `transactionprocessing.py`** — Near-duplicate of `accountholder.py` and not mounted in `main.py`. Delete it or give it a distinct responsibility.
+- [ ] **Add DB-level balance constraint** — Add a `CHECK(accountbalance >= 0)` constraint on `useraccountbalance` as a database-level safety net.
+
+---
+
+## API Design
+
+- [ ] **Use GET for read-only endpoints** — `/user/balance` and `/user/transactions` only read data. Once user identity comes from JWT, convert them to GET (no request body needed).
+- [ ] **Add pagination to transaction history** — `/user/transactions` returns everything at once. Add `limit`/`offset` query parameters.
+
+---
+
+## Testing
+
+- [ ] **Write unit/integration tests** — Currently zero tests. Use `pytest` + FastAPI `TestClient`. Start with auth flows, then transactions, then validation.
+
+---
+
+## Developer Experience
+
+- [ ] **Use Pydantic `BaseSettings`** — Replace scattered `os.getenv()` calls with a `BaseSettings` class that auto-loads `.env`, validates types, and provides a clean singleton config object.

@@ -5,7 +5,7 @@ from backend.database.database import getDB
 from sqlalchemy.orm import Session
 from backend.models import * 
 from backend.database.schema import * 
-from backend.validate import RequireAuth
+from backend.auth.validate import RequireAuth
 
 router = APIRouter(dependencies=[Depends(RequireAuth)])
 
@@ -89,7 +89,7 @@ async def withdraw_user_amount(
     
 
 
-@router.post("/user/send")
+@router.post("/user/transfer")
 async def send_user_amount(
     user: transactionTransfer,
     request : Request,
@@ -137,7 +137,7 @@ async def send_user_amount(
     
 
 
-@router.post("/user/history")
+@router.post("/user/transactions")
 def getUserTransactions(
     user : onlyEmail,
     db: Session = Depends(getDB),

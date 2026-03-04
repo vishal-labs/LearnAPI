@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from backend.database.schema import UsertableSchema
 from backend.database.database import getDB
-from backend.validate import validateAdminStatus
+from backend.auth.validate import validateAdminStatus
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
 import os
@@ -25,7 +25,7 @@ async def getAllUsers(db: Session = Depends(getDB), creds : HTTPAuthorizationCre
         return users
     else:
         raise HTTPException(status_code=403, detail="Unauthorized")
-@router.post("/make/admin")
+@router.post("/admin/promote")
 async def updateAdminStatus(
     user: makeUserAdmin, 
     db: Session = Depends(getDB)

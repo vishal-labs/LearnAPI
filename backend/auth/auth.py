@@ -5,7 +5,7 @@ from backend.database.database import getDB
 from sqlalchemy.orm import Session
 from backend.models import loginUser, onBoardUser
 from backend.database.schema import UserAccountBalanceSchema, UsertableSchema, PaymentHistorySchema
-from backend.validate import validateUserSession, createToken
+from backend.auth.validate import validateUserSession, createToken
 
 from passlib.context import CryptContext
 

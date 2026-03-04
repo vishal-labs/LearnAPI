@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from backend.auth.auth import router as auth_router
 from backend.users.admin import router as admin_router
-from backend.users.accountholder import router as transaction_router
+from backend.users.transactions import router as transaction_router
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
