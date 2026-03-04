@@ -28,6 +28,7 @@ class PaymentHistorySchema(Base):
     transactionid = db.Column(UUID(as_uuid=True), nullable=False, unique=True, default=lambda: uuid.uuid4())  # AUTO-GENERATED
     transactionamt = db.Column(db.Numeric(15, 2), nullable=False)
     timestamp = db.Column(db.TIMESTAMP, nullable=False, server_default=text('NOW()'))
+    ipaddress = db.Column(db.String, nullable=True)
     
     # ENUM constraint - only allows: transfer, deposit, withdrawal
     type = db.Column(db.Enum('transfer', 'deposit', 'withdrawal', name='txn_type'), 

@@ -35,3 +35,8 @@
 15. When calling a helper function inside a main function, if the helper function requires something as a parameter,
     and the main function can provide that, than pass that parameter directly to the helper function, instead of using Depends. Should learn more about this.
 16. Use typing, Optional for pydantic models where the input fields can be optionally null in some cases.
+17. Can do auth for entire router rather than doing it for each of the endpoint.
+
+18. When we rename a table and use alembic autogenerate, it recognises it as dropping the old table and creating a new table
+    this is fundamentally flawed because this erases all of the existing data in that table, so don't use autogenerate
+19. to get the Client's IP address, we can use `fastapi.Requests.client.host`
