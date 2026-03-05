@@ -19,7 +19,7 @@
 
 ## Error Handling & Correctness
 
-- [ ] **Fix `return HTTPException` → `raise HTTPException`** — Several error paths in `accountholder.py` return the exception instead of raising it, sending a `200 OK` with a serialized error object.
+- [] ~~**Fix `return HTTPException` → `raise HTTPException`** — Several error paths in `accountholder.py` return the exception instead of raising it, sending a `200 OK` with a serialized error object.~~
 - [ ] **Add balance check to withdrawal** — `/user/withdrawal` subtracts without verifying sufficient funds. Match the guard already in `/user/transfer`.
 - [ ] **Validate transaction amounts** — Add `Field(gt=0)` on `transactionAmount` in Pydantic models to reject negative/zero values.
 - [ ] **Global exception handling** — Write a FastAPI `@app.exception_handler()` to catch common errors (e.g., `jwt.ExpiredSignatureError`) app-wide instead of per-endpoint try/except blocks.

@@ -24,7 +24,7 @@ async def get_user_balance(
         }
         return payload
     except:
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not found")
     
 
 @router.post("/user/deposit")
@@ -54,7 +54,7 @@ async def deposit_user_amount(
         }
         return payload
     except:
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not found")
 
     
 
@@ -85,7 +85,7 @@ async def withdraw_user_amount(
         }
         return payload
     except:
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not found")
     
 
 
@@ -100,13 +100,13 @@ async def send_user_amount(
         to_user = db.query(UsertableSchema).filter(UsertableSchema.email == user.toUserEmail).first()
         
         if not from_user or not to_user:
-            return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not found")
             
         from_balance = db.query(UserAccountBalanceSchema).filter(UserAccountBalanceSchema.userid == from_user.id).first()
         to_balance = db.query(UserAccountBalanceSchema).filter(UserAccountBalanceSchema.userid == to_user.id).first()
         
         if from_balance.accountbalance < user.transactionAmount:
-            return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficient funds")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficient funds")
 
         from_balance.accountbalance -= user.transactionAmount
         to_balance.accountbalance += user.transactionAmount
@@ -133,7 +133,7 @@ async def send_user_amount(
         }
         return payload
     except Exception as e:
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     
 
 

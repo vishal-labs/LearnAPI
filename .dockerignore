@@ -1,0 +1,9 @@
+__pycache__/
+venv/
+alembic/
+.git/
+.gitignore
+.env
+.pytest_cache/
+*.pyc
+.DS_Store

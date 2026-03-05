@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 45s
+  evaluation_interval: 45s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Example: scraping a web application
+  - job_name: 'fastapibackend'
+    static_configs:
+      - targets: ['host.docker.internal:8000']
+    metrics_path: /metrics
+    scrape_interval: 5s
+
+  # # Example: scraping multiple instances
+  # - job_name: 'web-servers'
+  #   static_configs:
+  #     - targets:
+  #       - 'web1:9100'
+  #       - 'web2:9100'
+  #       - 'web3:9100'

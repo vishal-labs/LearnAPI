@@ -6,16 +6,29 @@ from sqlalchemy.orm import Session
 from backend.models import loginUser, onBoardUser
 from backend.database.schema import UserAccountBalanceSchema, UsertableSchema, PaymentHistorySchema
 from backend.auth.validate import validateUserSession, createToken
-
+from prometheus_client import Counter, Gauge, Histogram
 from passlib.context import CryptContext
 
 pwd_context  = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
-
 router = APIRouter()
 security = HTTPBearer()
 
+loginCounter = Counter(
+    "app_logins_total",
+    "total Login attempts",
+    ["status"]
+)
+active_users = Gauge(
+    "app_active_users",
+    "Number of currently active users"
+)
+
+db_query_duration = Histogram(
+    "app_db_query_duration_seconds",
+    "Time spent on database queries",
+    buckets=[0.01, 0.05, 0.1, 0.5, 1.0, 5.0]  # custom buckets
+)
 
 
 @router.post('/auth/login')
@@ -33,8 +46,10 @@ async def loginUser(user: loginUser,db: Session = Depends(getDB)):
             "token_type" : "bearer",
             "msg" : "User created"
         }
+        loginCounter.labels(status="success").inc()
         return payload
     else:
+        loginCounter.labels(status="failure").inc()
         raise HTTPException(status_code=401, detail="invalid login credentials")
 
 @router.post("/auth/signup")

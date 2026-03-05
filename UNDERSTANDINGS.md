@@ -40,3 +40,8 @@
 18. When we rename a table and use alembic autogenerate, it recognises it as dropping the old table and creating a new table
     this is fundamentally flawed because this erases all of the existing data in that table, so don't use autogenerate
 19. to get the Client's IP address, we can use `fastapi.Requests.client.host`
+
+20. I added a docker compose file, which has 3 services: DB, Prometheus and the Backend API.
+
+- Db is a postgres-db which basically has all of the db information
+- Prometheus will be used to scrape data from the
