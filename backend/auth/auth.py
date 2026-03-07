@@ -8,8 +8,7 @@ from backend.database.schema import UserAccountBalanceSchema, UsertableSchema, P
 from backend.auth.validate import validateUserSession, createToken
 from prometheus_client import Counter, Gauge, Histogram
 from passlib.context import CryptContext
-
-pwd_context  = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from passlib.hash import pbkdf2_sha256
 
 router = APIRouter()
 security = HTTPBearer()
@@ -35,11 +34,13 @@ db_query_duration = Histogram(
 async def loginUser(user: loginUser,db: Session = Depends(getDB)):
 # Aim of this function is to verify if the user already exists, and if yes, return a bearer token meaning, logging him in
     # Verify if the user exists
-    userPassword = db.query(UsertableSchema).filter(UsertableSchema.email == user.email).first()
-    #print(userPassword.password)
-    if userPassword == None:
+    user_record = db.query(UsertableSchema).filter(UsertableSchema.email == user.email).first()
+    #print(user_record.password)
+    if user_record == None:
         raise HTTPException(status_code=404, detail="User not found")
-    if userPassword.password == user.password:
+    # verify password:
+    
+    if pbkdf2_sha256.verify( user.password, user_record.password): # verify(enteredpass, db_stored_hash )
         token = createToken(user.email)
         payload = {
             "token" : token,
@@ -63,7 +64,7 @@ async def OnBoardUser(
         raise HTTPException(status_code=409, detail="User already exists")
     else:
         #hashed_password = pwd_context.hash(user.password)
-        hashed_password = user.password
+        hashed_password = pbkdf2_sha256.hash(user.password)
         newUser = UsertableSchema(email = user.email, password = hashed_password, username = user.username)
         
         db.add(newUser)

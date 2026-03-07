@@ -1,0 +1,48 @@
+# NOTE: Before deploying, rename all paths specific to your setup:
+# - Replace "thisapp" (User, Group, WorkingDirectory, EnvironmentFile, ExecStart,
+#   ReadWritePaths, SyslogIdentifier) with your app's name or the appropriate system user/path.
+# - Update the ExecStart path to match your virtual environment and application module.
+
+[Unit]
+Description=useJWT FastAPI Application
+Documentation=https://github.com/vishaldodda/useJWT
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=thisapp
+Group=thisapp
+
+WorkingDirectory=/opt/thisapp
+EnvironmentFile=/opt/thisapp/.env
+ExecStart=/opt/thisapp/venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000
+
+# Restart policy
+Restart=on-failure
+RestartSec=5s
+
+# Startup burst limits (systemd v250+)
+# Allow 5 restart attempts within a 30s window before giving up
+StartLimitIntervalSec=30
+StartLimitBurst=5
+
+# Resource and security hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/thisapp
+
+# Process limits
+LimitNOFILE=65536
+TimeoutStartSec=30
+TimeoutStopSec=30
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=thisapp
+
+[Install]
+WantedBy=multi-user.target

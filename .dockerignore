@@ -7,3 +7,5 @@ alembic/
 .pytest_cache/
 *.pyc
 .DS_Store
+backup.sql
+.DS_Store/
