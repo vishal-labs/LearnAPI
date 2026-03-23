@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from backend.auth.auth import router as auth_router
 from backend.users.admin import router as admin_router
 from backend.users.transactions import router as transaction_router
@@ -7,11 +8,10 @@ from contextlib import asynccontextmanager
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi import BackgroundTasks
 from backend.models import ForgotPasswordRequest
-import os
-from dotenv import load_dotenv
+from backend.config import settings
+from backend.auth.validate import createPasswordResetToken
 import random
-
-load_dotenv()
+import jwt
 
 
 
@@ -42,6 +42,14 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(transaction_router)
 
+@app.exception_handler(jwt.ExpiredSignatureError)
+async def expired_signature_handler(request: Request, exc: jwt.ExpiredSignatureError):
+    return JSONResponse(status_code=401, content={"detail": "Session Expired, Login Again"})
+
+@app.exception_handler(jwt.InvalidTokenError)
+async def invalid_token_handler(request: Request, exc: jwt.InvalidTokenError):
+    return JSONResponse(status_code=401, content={"detail": "Invalid User authentication"})
+
 @app.get("/")
 async def home():
     return {"msg": "Welcome to the JWT Authentication API"}
@@ -50,7 +58,7 @@ def send_email(email : str, subject: str, body: str):
     import smtplib
     with smtplib.SMTP("smtp.gmail.com", 587) as server:
         server.starttls()
-        password = os.getenv("SMTP_PASSWORD")
+        password = settings.SMTP_PASSWORD
         server.login("hellovishal2020@gmail.com", password=password)
         server.sendmail("hellovishal2020@gmail.com", email, f"Subject : {subject}\n\n{body}")
 
@@ -58,6 +66,7 @@ def send_email(email : str, subject: str, body: str):
 @app.post("/auth/forgot-password")
 async def forgot_password(user : ForgotPasswordRequest, background_tasks : BackgroundTasks):
     email = user.email
-    token = random.randint(1000, 10000)
-    background_tasks.add_task(send_email, email, "Reset Password", f"Token: {token}")
+    token = createPasswordResetToken(email)
+    reset_link = f"http://localhost:8080/reset-password?token={token}"
+    background_tasks.add_task(send_email, email, "Reset Password", f"Click here to reset: {reset_link}\nOr use token: {token}")
     return {"msg": "If that email exists, a reset link was sent"}

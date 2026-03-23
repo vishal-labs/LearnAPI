@@ -1,21 +1,15 @@
-from dotenv import load_dotenv
+from backend.config import settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import os
 from backend.database.schema import Base, UsertableSchema
-# Creating a database connection URL
-load_dotenv()
 
-POSTGRES_USER = os.getenv("POSTGRES_USER")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-
-POSTGRES_SERVER = os.getenv("POSTGRES_SERVER")
-POSTGRES_PORT = os.getenv("POSTGRES_PORT")
-
-POSTGRES_DB = os.getenv("POSTGRES_DB", "testdb")
+POSTGRES_USER = settings.POSTGRES_USER
+POSTGRES_PASSWORD = settings.POSTGRES_PASSWORD
+POSTGRES_SERVER = settings.POSTGRES_SERVER
+POSTGRES_PORT = settings.POSTGRES_PORT
+POSTGRES_DB = settings.POSTGRES_DB
 
 DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
-#print(DATABASE_URL)
 
 # Create a helper function for DB connection
 

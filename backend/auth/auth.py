@@ -3,9 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from backend.database.database import getDB
 from sqlalchemy.orm import Session
-from backend.models import loginUser, onBoardUser
+from backend.models import loginUser, onBoardUser, RefreshTokenRequest, ResetPasswordRequest
 from backend.database.schema import UserAccountBalanceSchema, UsertableSchema, PaymentHistorySchema
-from backend.auth.validate import validateUserSession, createToken
+from backend.auth.validate import validateUserSession, createToken, createRefreshToken
+from backend.config import settings
+import jwt
 from prometheus_client import Counter, Gauge, Histogram
 from passlib.context import CryptContext
 from passlib.hash import pbkdf2_sha256
@@ -42,10 +44,12 @@ async def loginUser(user: loginUser,db: Session = Depends(getDB)):
     
     if pbkdf2_sha256.verify( user.password, user_record.password): # verify(enteredpass, db_stored_hash )
         token = createToken(user.email)
+        refresh_token = createRefreshToken(user.email)
         payload = {
             "token" : token,
+            "refresh_token": refresh_token,
             "token_type" : "bearer",
-            "msg" : "User created"
+            "msg" : "User logged in"
         }
         loginCounter.labels(status="success").inc()
         return payload
@@ -79,3 +83,26 @@ async def me(creds: HTTPAuthorizationCredentials = Depends(security)):
     token = creds.credentials
     validateUserSession(token)
     return {"msg" : "User is valid"}
+
+@router.post("/auth/refresh")
+async def refresh_token(request: RefreshTokenRequest):
+    payload = jwt.decode(request.refresh_token, key=settings.REFRESH_KEY, algorithms=["HS256"])
+    if payload.get("type") != "refresh":
+        raise HTTPException(status_code=401, detail="Invalid token type")
+    email = payload.get("email")
+    new_token = createToken(email)
+    return {"access_token": new_token, "token_type": "bearer"}
+
+@router.post("/auth/reset-password")
+async def reset_password(request: ResetPasswordRequest, db: Session = Depends(getDB)):
+    payload = jwt.decode(request.token, key=settings.KEY, algorithms=["HS256"])
+    if payload.get("type") != "reset":
+        raise HTTPException(status_code=401, detail="Invalid token type")
+    email = payload.get("email")
+    user_record = db.query(UsertableSchema).filter(UsertableSchema.email == email).first()
+    if not user_record:
+        raise HTTPException(status_code=404, detail="User not found")
+    hashed_password = pbkdf2_sha256.hash(request.new_password)
+    user_record.password = hashed_password
+    db.commit()
+    return {"msg": "Password updated successfully"}

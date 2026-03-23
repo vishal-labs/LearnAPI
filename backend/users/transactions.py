@@ -9,13 +9,13 @@ from backend.auth.validate import RequireAuth
 
 router = APIRouter(dependencies=[Depends(RequireAuth)])
 
-@router.post("/user/balance")
+@router.get("/user/balance")
 async def get_user_balance(
-    user: onlyEmail,
+    email: str = Depends(RequireAuth),
     db: Session = Depends(getDB)
 ):
     try:
-        user_record = db.query(UsertableSchema).filter(UsertableSchema.email == user.email).first()
+        user_record = db.query(UsertableSchema).filter(UsertableSchema.email == email).first()
         user_balance = db.query(UserAccountBalanceSchema).filter(UserAccountBalanceSchema.userid == user_record.id).order_by(UserAccountBalanceSchema.lastupdated).first()
         payload = {
             "user" : user_record.username,
@@ -140,13 +140,13 @@ async def send_user_amount(
     
 
 
-@router.post("/user/transactions")
+@router.get("/user/transactions")
 def getUserTransactions(
-    user : onlyEmail,
+    email: str = Depends(RequireAuth),
     db: Session = Depends(getDB),
 ):
     # I have to fetch all of the transaction by the user. 
-    user_record = db.query(UsertableSchema).filter(UsertableSchema.email == user.email).first()
+    user_record = db.query(UsertableSchema).filter(UsertableSchema.email == email).first()
     if user_record.id is None:
         return HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User doesn't exist")
     user_transaction_records = db.query(PaymentHistorySchema).filter(
