@@ -20,7 +20,7 @@ class makeUserAdmin(BaseModel):
 class transactionTransfer(BaseModel):
     fromUserEmail: EmailStr
     toUserEmail: EmailStr
-    transactionAmount: int
+    transactionAmount: int = Field(gt=0)
 class transactionWithdrawal(transactionTransfer):
     toUserEmail : Optional[EmailStr] = Field(None, description="Null for withdrawals")
 

@@ -67,6 +67,8 @@ async def withdraw_user_amount(
     try:
         user_record = db.query(UsertableSchema).filter(UsertableSchema.email == user.fromUserEmail).first() # get user details
         user_balance = db.query(UserAccountBalanceSchema).filter(UserAccountBalanceSchema.userid == user_record.id).first()
+        if user_balance.accountbalance < user.transactionAmount:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficient funds")
         user_balance.accountbalance -= user.transactionAmount
         user_balance.lastupdated = datetime.now(timezone.utc)
         payment_record = PaymentHistorySchema(
@@ -113,7 +115,7 @@ async def send_user_amount(
         
         from_balance.lastupdated = datetime.now(timezone.utc)
         to_balance.lastupdated = datetime.now(timezone.utc)
-        
+        # creating a new row
         payment_record = PaymentHistorySchema(
             from_userid=from_user.id,
             to_userid=to_user.id,
@@ -121,6 +123,7 @@ async def send_user_amount(
             type='transfer',
             ipaddress=request.client.host
         )
+        # adding it to the DB
         db.add(payment_record)
         db.commit()
         db.refresh(from_user)

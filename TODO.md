@@ -1,35 +1,34 @@
 # TODO
 
-## Foundational (Original Goals)
+## Completed
 
-- [ ] Create more tables to learn ORM queries and relationship management
-- [ ] Get more comfortable with Pydantic and SQLModels for API parameters and DB queries
+- [x] ~~Create an admin route to return all users~~ (`GET /admin/users`)
+- [x] ~~Hash passwords~~ — `passlib` + `bcrypt` now hash on signup and verify on login
+- [x] ~~Extract user identity from JWT~~ — Endpoints use JWT-decoded identity
+- [x] ~~Fix `return HTTPException` → `raise HTTPException`~~
+- [x] ~~Add balance check to withdrawal~~ — Guard added in `/user/withdrawal`
+- [x] ~~Validate transaction amounts~~ — `Field(gt=0)` on `transactionAmount`
+- [x] ~~Clean up `transactionprocessing.py`~~ — Removed duplicate file
+- [x] ~~Create more tables / learn ORM relationships~~
+- [x] ~~Add DB-level balance constraint~~ — `CHECK(accountbalance >= 0)` on `useraccountbalance`
+
+---
+
+## Foundational
+
 - [ ] Implement a Forgot Password feature
-- [ ] ~~Create an admin route to return all users~~ ✅ Done (`GET /admin/users`)
 
 ---
 
 ## Security & Authentication
 
-- [ ] **Hash passwords** — `passlib` + `bcrypt` are already imported but signup still saves plain-text. Actually hash before storing and verify during login.
-- [ ] **Extract user identity from JWT** — Endpoints like `/user/balance` trust the email in the request body. Instead, decode the JWT to get the logged-in user's email — prevents users from accessing other accounts.
 - [ ] **Implement refresh tokens** — Token expires in 4 minutes. Add a `/auth/refresh` endpoint that uses a longer-lived refresh token to issue new short-lived access tokens.
 
 ---
 
 ## Error Handling & Correctness
 
-- [] ~~**Fix `return HTTPException` → `raise HTTPException`** — Several error paths in `accountholder.py` return the exception instead of raising it, sending a `200 OK` with a serialized error object.~~
-- [ ] **Add balance check to withdrawal** — `/user/withdrawal` subtracts without verifying sufficient funds. Match the guard already in `/user/transfer`.
-- [ ] **Validate transaction amounts** — Add `Field(gt=0)` on `transactionAmount` in Pydantic models to reject negative/zero values.
 - [ ] **Global exception handling** — Write a FastAPI `@app.exception_handler()` to catch common errors (e.g., `jwt.ExpiredSignatureError`) app-wide instead of per-endpoint try/except blocks.
-
----
-
-## Database & Architecture
-
-- [ ] **Clean up `transactionprocessing.py`** — Near-duplicate of `accountholder.py` and not mounted in `main.py`. Delete it or give it a distinct responsibility.
-- [ ] **Add DB-level balance constraint** — Add a `CHECK(accountbalance >= 0)` constraint on `useraccountbalance` as a database-level safety net.
 
 ---
 

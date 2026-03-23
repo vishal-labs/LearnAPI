@@ -23,8 +23,8 @@ class PaymentHistorySchema(Base):
     __tablename__ = 'paymenthistory'
 
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
-    from_userid = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    to_userid = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    from_userid = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
+    to_userid = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
     transactionid = db.Column(UUID(as_uuid=True), nullable=False, unique=True, default=lambda: uuid.uuid4())  # AUTO-GENERATED
     transactionamt = db.Column(db.Numeric(15, 2), nullable=False)
     timestamp = db.Column(db.TIMESTAMP, nullable=False, server_default=text('NOW()'))
@@ -41,7 +41,7 @@ class PaymentHistorySchema(Base):
 class UserAccountBalanceSchema(Base):
     __tablename__ = 'useraccountbalance'
 
-    userid = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
+    userid = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), primary_key=True, nullable=False)
     accountbalance = db.Column(db.Numeric(15, 2), nullable=False, server_default=text('0'))
     lastupdated = db.Column(db.TIMESTAMP, nullable=False, server_default=text('NOW()'))
 

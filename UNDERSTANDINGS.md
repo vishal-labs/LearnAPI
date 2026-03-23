@@ -45,3 +45,18 @@
 
 - Db is a postgres-db which basically has all of the db information
 - Prometheus will be used to scrape data from the
+
+21. Pydantic's `Field(gt=0)` on model attributes lets you enforce value constraints (e.g. positive-only amounts) at the validation layer.
+    The request is rejected with a 422 before the endpoint code even runs — no manual `if` check needed.
+
+22. Always add an application-level balance guard (`if balance < amount: raise HTTPException`) **and** a DB-level
+    `CheckConstraint('accountbalance >= 0')` via SQLAlchemy `__table_args__`. The app-level check gives a friendly
+    error message; the DB constraint is the safety net that prevents negative balances even if the app logic has a bug
+    or a race condition.
+
+23. Switched from `psycopg2-binary` to `psycopg2==2.9.11`. `psycopg2-binary` bundles its own libpq and is meant only
+    for development/testing. For production (especially Docker), use `psycopg2` which links against the system libpq
+    — it's smaller, avoids potential SSL/library conflicts, and is what the psycopg2 maintainers recommend for deployed apps.
+
+24. When adding a service file (`thisapp.service`) for systemd, the key directives are `ExecStart` (the command to run),
+    `WorkingDirectory`, `User`, and `Restart=always`. This lets the API run as a managed background service on a Linux server.
