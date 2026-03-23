@@ -26,3 +26,6 @@ class transactionWithdrawal(transactionTransfer):
 
 class transactionDeposit(transactionTransfer):
     fromUserEmail: Optional[EmailStr] = Field(None, description="Null for deposits")
+
+class ForgotPasswordRequest(BaseModel):
+    email : EmailStr

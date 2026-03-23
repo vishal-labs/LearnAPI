@@ -35,7 +35,6 @@
 ## API Design
 
 - [ ] **Use GET for read-only endpoints** — `/user/balance` and `/user/transactions` only read data. Once user identity comes from JWT, convert them to GET (no request body needed).
-- [ ] **Add pagination to transaction history** — `/user/transactions` returns everything at once. Add `limit`/`offset` query parameters.
 
 ---
 
